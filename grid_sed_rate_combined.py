@@ -164,7 +164,7 @@ sites[:,0] = site_coords[:,0]
 sites[:,1] = site_coords[:,1]
 sites[:,2] = sed_rate_masked_nonnans
 
-
+# Interpolate toget values for margins
 for n in np.arange(len(grid_coords)):
     try:
         near_sites = sites[sites[:,0] < grid_coords[n,0]+20]

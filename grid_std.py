@@ -193,7 +193,7 @@ reg_datasets = [etopo1_depth, surface_porosity, sed_thickness_whittaker, crustal
                 coast_distance, ridge_distance, seamount, surface_productivity,
                 toc, opal, caco3, woa_temp, woa_salinity, woa_o2,
                 caco3_archer, acc_rate_archer,sed_thickness_laske]
-reg_datasets = [sed_thickness_whittaker,sed_thickness_laske, crustal_age]
+reg_datasets = [lithology]
 # Function for resampling datasets to be consistent with 5" pixel-registered porosity dataset
 def resamp(dataset, resampler, newarr_shape):
     arr = dataset
@@ -226,15 +226,6 @@ for n in regs:
     gridded_data[:,:,n] = newarr
 
 
-# Make new full coverage sed thickness grid and calculate sed rate using crustal age
-sed_thickness = gridded_data[:,:,0]
-sed_thickness[np.isnan(sed_thickness)] = gridded_data[:,:,1][np.isnan(sed_thickness)]
-
-sed_rate_calcd = np.empty(newarr_shape)
-sed_rate_calcd[~np.isnan(gridded_data[:,:,2])] = sed_thickness[~np.isnan(gridded_data[:,:,2])]/gridded_data[:,:,2][~np.isnan(gridded_data[:,:,2])]
-sed_rate_calcd[gridded_data[:,:,2] > 1000] = sed_thickness[gridded_data[:,:,2] > 1000]/gridded_data[:,:,2][gridded_data[:,:,2] > 1000]*10000
-
-
 # Free up memory
 for dataset in reg_datasets:
     del dataset
@@ -257,10 +248,8 @@ filenames = ['etopo1_depth', 'surface_porosity', 'sed_thickness_whittaker', 'cru
                 'lith4','lith5','lith6','lith7','lith8',
                 'lith9','lith10','lith11','lith12','lith13']
 
-filenames = ['sed_thickness_combined']
+filenames = ['lithology']
 for n in np.arange(len(filenames)):
-    np.savetxt(filenames[n]+'_std.txt', sed_thickness, delimiter='\t')
-
     np.savetxt(filenames[n]+'_std.txt', gridded_data[:,:,n], delimiter='\t')
 """
 
@@ -269,7 +258,7 @@ for n in np.arange(len(filenames)):
 """
 # View datasets
 plt.close('all')
-plt.imshow(sed_thickness_whittaker, cmap='plasma')
+plt.imshow(gridded_data[:,:,n], cmap='plasma')
 plt.show = lambda : None  # prevents showing during doctests
 plt.show()
 """

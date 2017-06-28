@@ -47,8 +47,8 @@ ranges = [0,1000,2000,3000,4320]
 # Load 'idw', grids
 for n in np.arange(4):
     chunk = np.loadtxt(
-        r"C:\Users\rickdberg\Downloads\idw_grid{}.txt".format(n+1)
-        , delimiter='\t')
+        r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\IDW\idw_grid{}.txt"
+        .format(n+1), delimiter='\t')
     fluxes[:,ranges[n]:ranges[n+1]] = chunk[:,ranges[n]:ranges[n+1]]
     del chunk
     print('chunk ', n, 'loaded')
@@ -61,7 +61,7 @@ mask = mask.astype('bool')
 fluxes[mask] = np.nan
 print('mask loaded')
 
-np.savetxt('idw_fluxes_std.txt',fluxes,delimiter='\t')
+# np.savetxt('idw_fluxes_std.txt',fluxes,delimiter='\t')
 
 # Calculate grid areas
 grid_areas = np.empty((len(lat), len(lon)))
@@ -80,7 +80,7 @@ f.close()
 woas.write(fluxes, 1)
 src = woas
 woas.close()
-title = '$Inverse-distance\ weighted\ interpolation\ fluxes$'
+title = "$Inverse-distance\ weighted\ interpolation$\n $Total\ flux:\ {}\ Tmol/y$".format(round(idw_flux/10**12,2))
 
 # Read image into ndarray
 im = src.read()
@@ -104,7 +104,7 @@ ax.set_ymargin(0.10)
 # ax.stock_img()
 
 # plot raster
-plt.imshow(im, origin='upper', extent=[xmin, xmax, ymin, ymax], transform=crs)
+plt.imshow(im, origin='upper', extent=[xmin, xmax, ymin, ymax], transform=crs, vmin=-0.01, vmax=0.05)
 # ax.coastlines(resolution='10m', color='k', linewidth=0.2)
 # plt.colorbar(shrink=0.5)
 ax.add_feature(cartopy.feature.LAND)
@@ -114,6 +114,12 @@ ax.add_feature(cartopy.feature.COASTLINE, linewidth=0.3)
 #ax.add_feature(cartopy.feature.LAKES, alpha=0.5)
 ax.add_feature(cartopy.feature.RIVERS)
 # ax.add_feature(cartopy.feature.LAND, zorder=50, edgecolor='k')
+
+fname = site_metadata[['lon','lat']].as_matrix()
+site_fluxes = site_metadata['interface_flux']
+ax.scatter(fname[:,0], fname[:,1],
+           transform=ccrs.Geodetic(), c=np.array(site_fluxes).astype(float), s=30, vmin=-0.01, vmax=0.05)
+
 gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                   color='gray', alpha=0.1, linestyle='--', )
 gl.xlabels_top = False
@@ -121,6 +127,5 @@ gl.ylabels_right = False
 gl.xformatter = LONGITUDE_FORMATTER
 gl.yformatter = LATITUDE_FORMATTER
 plt.show()
-
 
 # eof

@@ -80,10 +80,12 @@ grid_nonnan_areas = grid_areas_masked[~np.isnan(flat_grid_data).any(axis=1)]
 
 
 # Random Forest Regression
+"""
 regressor = RandomForestRegressor(n_estimators=40,
                                   n_jobs=-1,
                                   min_samples_leaf=2)
 
+"""
 """
 # Multiple Linear Regression
 regressor = linear_model.LinearRegression(n_jobs=-1)
@@ -96,14 +98,15 @@ regressor = AdaBoostRegressor(n_estimators=100,
 regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
 
 """
-"""
+
 
 # Gradient Boosting Regressor
 regressor = GradientBoostingRegressor(n_estimators=120,
                                     min_samples_leaf=8,
                                     criterion='friedman_mse')
-"""
+
 regressor.fit(X, y)
+
 fluxes = regressor.predict(flat_nonnan_data)
 
 total_flux = np.sum(fluxes*grid_nonnan_areas*1000000)
@@ -113,7 +116,7 @@ fluxes_masked[~np.isnan(flat_grid_data).any(axis=1)] = fluxes
 
 fluxes = np.empty(grid_areas.shape) * np.nan
 fluxes[~mask] = fluxes_masked
-np.savetxt('mg_flux_rf.txt', fluxes, delimiter='\t')
+# np.savetxt('mg_flux_rf.txt', fluxes, delimiter='\t')
 
 plt.close('all')
 plt.imshow(fluxes, cmap='plasma')

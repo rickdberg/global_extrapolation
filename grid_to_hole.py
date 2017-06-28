@@ -45,9 +45,9 @@ grid_names = ['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
               'surface_productivity','toc_seiter', 'opal', 'caco3',
               'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
               'caco3_archer','acc_rate_archer','toc_combined',
-              'sed_rate_combined','lith1','lith2','lith3','lith4','lith5',
-              'lith6','lith7','lith8','lith9','lith10','lith11','lith12',
-              'lith13']
+              'sed_rate_combined','lithology','lith1','lith2','lith3','lith4',
+              'lith5','lith6','lith7','lith8','lith9','lith10','lith11',
+              'lith12','lith13']
 
 
 def feature_pull(site_lat, site_lon, lat, lon, z):
