@@ -44,7 +44,7 @@ def comp(database, metadata, site_info, hole_info):
     site_meta_data = pd.merge(metadata, sitedata, how='outer', on=('site_key', 'leg', 'site'))
     data = pd.merge(site_meta_data, hole_grouped, how='outer', on=('site_key')).fillna(np.nan)
     site_metadata = data.dropna(subset = ['interface_flux']).reset_index(drop=True)
-    site_metadata = site_metadata[site_metadata['advection'].astype(float) >= 0]
+    #site_metadata = site_metadata[site_metadata['advection'].astype(float) >= 0]
     #site_metadata = site_metadata[site_metadata['top_por'].astype(float) >= 0.35]
     site_metadata = site_metadata[site_metadata['datapoints'].astype(float) >= 3]
     site_metadata = site_metadata[site_metadata['site'] != '796']

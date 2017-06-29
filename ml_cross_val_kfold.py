@@ -32,7 +32,7 @@ importlib.reload(comp)
 
 #Datasets to pull from
 database = "mysql://root:neogene227@localhost/iodp_compiled"
-metadata = "metadata_mg_flux"
+metadata = "metadata_mg_flux_flow"
 site_info = "site_info"
 hole_info = "summary_all"
 
@@ -49,9 +49,9 @@ X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
   'acc_rate_archer'
                          ]], oc_burial), axis=1)
 """
-X = ml_train[['etopo1_depth', 'surface_porosity',
-              'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-              'acc_rate_archer','toc_combined','sed_rate_combined'
+X = ml_train[['surface_porosity', 'sed_thickness_combined',
+  'surface_productivity','woa_temp', 'woa_salinity', 'acc_rate_archer','toc_combined',
+  'sed_rate_combined'
                          ]]
 
 X = np.array(X)
@@ -70,9 +70,9 @@ for train_idx, test_idx in cv.split(X):
     y_train, y_test = y[train_idx], y[test_idx]
 
     # Random Forest Regression
-    """
-    regressor = GradientBoostingRegressor(n_estimators=120,
-                                        min_samples_leaf=8,
+
+    regressor = GradientBoostingRegressor(n_estimators=40,
+                                        min_samples_leaf=3,
                                         criterion='friedman_mse')
 
     """
@@ -81,6 +81,7 @@ for train_idx, test_idx in cv.split(X):
                                     min_samples_leaf=2,
                                     criterion = 'friedman_mse')
 
+    """
     """
     regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
     """
@@ -92,6 +93,8 @@ slope, intercept, r_value, p_value, std_err = linregress(y, y_predicted)
 print('r_squared:', r_value**2)
 r_squared = r_value**2
 
+regressor.feature_importances_
+
 # Plot
 plt.close('all')
 plt.scatter(y, y_predicted,
@@ -99,8 +102,8 @@ plt.scatter(y, y_predicted,
             label="Test Data, R-squared=%.2f" % r_squared)
 plt.xlabel('Measured flux', fontsize=20)
 plt.ylabel('Estimated flux', fontsize=20)
-plt.xlim((-0.005, 0.035))
-plt.ylim((-0.005, 0.035))
+plt.xlim((-1.1, 0.035))
+plt.ylim((-1.1, 0.035))
 plt.legend(loc='upper left')
 plt.show()
 # eof

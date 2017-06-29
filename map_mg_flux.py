@@ -18,7 +18,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
 #Datasets to pull from
 database = "mysql://root:neogene227@localhost/iodp_compiled"
-metadata = "metadata_mg_flux"
+metadata = "metadata_mg_flux_flow"
 site_info = "site_info"
 hole_info = "summary_all"
 
@@ -59,7 +59,7 @@ lon[lon > 180] -= 360
 
 
 fluxes = np.loadtxt(
-r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_rf.txt'
+r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_gbr_advection.txt'
 , delimiter='\t')
 
 

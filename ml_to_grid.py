@@ -19,19 +19,18 @@ from site_metadata_compiler_completed import comp
 #Load variables
 database = "mysql://root:neogene227@localhost/iodp_compiled"
 directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\\"
-metadata = "metadata_mg_flux"
+metadata = "metadata_mg_flux_flow"
 site_info = "site_info"
 hole_info = "summary_all"
 
-grids = ['etopo1_depth', 'surface_porosity',
-         'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-         'acc_rate_archer','toc_combined','sed_rate_combined'
+grids = ['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
+  'surface_productivity','woa_temp', 'woa_salinity', 'acc_rate_archer','toc_combined',
+  'sed_rate_combined'
          ]
 
 # Load site data
 site_metadata = comp(database, metadata, site_info, hole_info)
 ml_train = site_metadata
-ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
 
 oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_combined'].astype(float)
 """
@@ -78,12 +77,13 @@ r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\stand
 grid_areas_masked = grid_areas[~mask]
 grid_nonnan_areas = grid_areas_masked[~np.isnan(flat_grid_data).any(axis=1)]
 
-
+"""
 # Random Forest Regression
 regressor = RandomForestRegressor(n_estimators=40,
                                   n_jobs=-1,
                                   min_samples_leaf=2)
 
+"""
 """
 # Multiple Linear Regression
 regressor = linear_model.LinearRegression(n_jobs=-1)
@@ -96,13 +96,12 @@ regressor = AdaBoostRegressor(n_estimators=100,
 regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
 
 """
-"""
 
 # Gradient Boosting Regressor
-regressor = GradientBoostingRegressor(n_estimators=120,
-                                    min_samples_leaf=8,
+regressor = GradientBoostingRegressor(n_estimators=40,
+                                    min_samples_leaf=7,
                                     criterion='friedman_mse')
-"""
+
 regressor.fit(X, y)
 fluxes = regressor.predict(flat_nonnan_data)
 
@@ -113,7 +112,7 @@ fluxes_masked[~np.isnan(flat_grid_data).any(axis=1)] = fluxes
 
 fluxes = np.empty(grid_areas.shape) * np.nan
 fluxes[~mask] = fluxes_masked
-np.savetxt('mg_flux_rf.txt', fluxes, delimiter='\t')
+np.savetxt('mg_flux_gbr_advection.txt', fluxes, delimiter='\t')
 
 plt.close('all')
 plt.imshow(fluxes, cmap='plasma')

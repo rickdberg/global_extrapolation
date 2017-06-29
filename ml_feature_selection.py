@@ -41,9 +41,9 @@ ml_train = site_metadata
 ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
 
 oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_combined'].astype(float)
-X = ml_train[['etopo1_depth', 'surface_porosity',
-  'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-  'acc_rate_archer','toc_combined','sed_rate_combined'
+X = ml_train[['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
+  'surface_productivity','woa_temp', 'woa_salinity', 'acc_rate_archer','toc_combined',
+  'sed_rate_combined'
                          ]]
 
 X = np.array(X)
@@ -62,7 +62,7 @@ estimator = RandomForestRegressor(n_estimators=100,
                                 n_jobs=-1, min_samples_leaf=7
                                 , criterion = 'friedman_mse')
 """
-estimator = GradientBoostingRegressor(n_estimators=28,
+estimator = GradientBoostingRegressor(n_estimators=100,
                                     min_samples_leaf=7,
                                     criterion='friedman_mse')
 
