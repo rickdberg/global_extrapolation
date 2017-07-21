@@ -10,8 +10,8 @@ Random forest feature selection
   'crustal_age','coast_distance', 'ridge_distance', 'seamount',
   'surface_productivity','toc_seiter', 'opal', 'caco3',
   'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
-  'caco3_archer','acc_rate_archer','toc_combined',
-  'sed_rate_combined','lith1','lith2','lith3','lith4','lith5',
+  'caco3_archer','acc_rate_archer','toc_combined','toc_wood'
+  'sed_rate_combined','lithology','lith1','lith2','lith3','lith4','lith5',
   'lith6','lith7','lith8','lith9','lith10','lith11','lith12',
   'lith13']
 
@@ -43,7 +43,7 @@ ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
 oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_combined'].astype(float)
 X = ml_train[['etopo1_depth', 'surface_porosity',
   'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-  'acc_rate_archer','toc_combined','sed_rate_combined'
+  'acc_rate_archer','toc_wood','sed_rate_combined'
                          ]]
 
 X = np.array(X)

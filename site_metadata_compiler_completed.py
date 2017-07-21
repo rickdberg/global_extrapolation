@@ -36,7 +36,7 @@ def comp(database, metadata, site_info, hole_info):
                                    'surface_productivity','toc_seiter', 'opal',
                                    'caco3','sed_rate_burwicz', 'woa_temp',
                                    'woa_salinity', 'woa_o2','caco3_archer',
-                                   'acc_rate_archer','toc_combined',
+                                   'acc_rate_archer','toc_combined','toc_wood',
                                    'sed_rate_combined','lithology','lith1',
                                    'lith2','lith3','lith4','lith5','lith6',
                                    'lith7','lith8','lith9','lith10','lith11',
