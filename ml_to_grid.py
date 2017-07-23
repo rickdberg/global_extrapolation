@@ -25,7 +25,7 @@ hole_info = "summary_all"
 
 grids = ['etopo1_depth', 'surface_porosity',
          'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-         'acc_rate_archer','toc_combined','sed_rate_combined'
+         'acc_rate_archer','toc_wood','sed_rate_combined'
          ]
 
 # Load site data
@@ -43,7 +43,7 @@ X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
 """
 X = ml_train[['etopo1_depth', 'surface_porosity',
               'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-              'acc_rate_archer','toc_combined','sed_rate_combined'
+              'acc_rate_archer','toc_wood','sed_rate_combined'
                          ]]
 
 X = np.array(X)
@@ -116,7 +116,7 @@ fluxes_masked[~np.isnan(flat_grid_data).any(axis=1)] = fluxes
 
 fluxes = np.empty(grid_areas.shape) * np.nan
 fluxes[~mask] = fluxes_masked
-# np.savetxt('mg_flux_rf.txt', fluxes, delimiter='\t')
+np.savetxt('mg_flux_gbr.txt', fluxes, delimiter='\t')
 
 plt.close('all')
 plt.imshow(fluxes, cmap='plasma')

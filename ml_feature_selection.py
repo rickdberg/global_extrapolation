@@ -56,14 +56,14 @@ y = np.array(y)  # .reshape(-1,1)
 
 # Cross validation with 50 iterations to get smoother mean test and train
 # score curves, each time with 10% data randomly selected as a validation set.
-cv = ShuffleSplit(n_splits=20, test_size=0.15)
+cv = ShuffleSplit(n_splits=20, test_size=0.10)
 """
 estimator = RandomForestRegressor(n_estimators=100,
                                 n_jobs=-1, min_samples_leaf=7
                                 , criterion = 'friedman_mse')
 """
-estimator = GradientBoostingRegressor(n_estimators=28,
-                                    min_samples_leaf=7,
+estimator = GradientBoostingRegressor(n_estimators=120,
+                                    min_samples_leaf=8,
                                     criterion='friedman_mse')
 
 # The "accuracy" scoring is proportional to the number of correct

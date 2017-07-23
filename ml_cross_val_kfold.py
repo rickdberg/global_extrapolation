@@ -70,18 +70,19 @@ for train_idx, test_idx in cv.split(X):
     y_train, y_test = y[train_idx], y[test_idx]
 
     # Random Forest Regression
-
-    regressor = GradientBoostingRegressor(n_estimators=120,
+    """
+    regressor = GradientBoostingRegressor(n_estimators=110,
                                         min_samples_leaf=8,
                                         criterion='friedman_mse')
 
     """
+
     regressor = RandomForestRegressor(n_estimators=40,
                                     n_jobs=-1,
                                     min_samples_leaf=2,
                                     criterion = 'friedman_mse')
 
-    """
+
     """
     regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
     """
@@ -99,11 +100,11 @@ regressor.feature_importances_
 plt.close('all')
 plt.scatter(y, y_predicted,
             c="b", s=20, marker="^", alpha=1,
-            label="Test Data, R-squared=%.2f" % r_squared)
+            label="Test Data, R-squared=%.4f" % r_squared)
 plt.xlabel('Measured flux', fontsize=20)
 plt.ylabel('Estimated flux', fontsize=20)
-plt.xlim((-0.5, 0.035))
-plt.ylim((-0.5, 0.035))
+plt.xlim((-0.01, 0.035))
+plt.ylim((-0.01, 0.035))
 plt.legend(loc='upper left')
 plt.show()
 # eof
