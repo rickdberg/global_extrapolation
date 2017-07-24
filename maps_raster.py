@@ -92,9 +92,9 @@ woas.close()
 title = '$Surface\ productivity$'
 
 
-# Load 'toc' grid
+# Load 'toc_wood' grid
 fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\toc_std.txt"
+r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\toc_wood_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -268,6 +268,20 @@ woas.write(fluxes, 1)
 src = woas
 woas.close()
 title = '$CaCO3$'
+
+# Load 'sed_rate_combined', grid
+fluxes = np.loadtxt(
+r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\sed_rate_combined_std.txt"
+, delimiter='\t')
+
+woas = rasterio.open('rf.nc', 'w', driver='GMT',
+                             height=f.shape[0], width=f.shape[1],
+                             count=1, dtype=fluxes.dtype,
+                             crs='+proj=latlong', transform=f.transform)
+woas.write(fluxes, 1)
+src = woas
+woas.close()
+title = '$Sedimentation\ Rate$'
 
 
 # Read image into ndarray

@@ -63,6 +63,11 @@ caco3_archer = caco3_arrange(caco3_archer)
 acc_rate_archer = rast(
 r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Archer - accumulation rate\accum.coretop.cdf"
 )
+def acc_rate_arrange(acc_rate_archer):
+    st_left = acc_rate_archer[:,:180]
+    st_right = acc_rate_archer[:,180:]
+    return np.concatenate((st_right, st_left), axis=1)
+acc_rate_archer = acc_rate_arrange(acc_rate_archer)
 
 etopo1_depth = rast(
 r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Amante - etopo1\ETOPO1_Bed_g_gmt4.grd"
@@ -193,7 +198,7 @@ reg_datasets = [etopo1_depth, surface_porosity, sed_thickness_whittaker, crustal
                 coast_distance, ridge_distance, seamount, surface_productivity,
                 toc, opal, caco3, woa_temp, woa_salinity, woa_o2,
                 caco3_archer, acc_rate_archer,sed_thickness_laske]
-reg_datasets = [lithology]
+reg_datasets = [acc_rate_archer]
 # Function for resampling datasets to be consistent with 5" pixel-registered porosity dataset
 def resamp(dataset, resampler, newarr_shape):
     arr = dataset
@@ -248,7 +253,7 @@ filenames = ['etopo1_depth', 'surface_porosity', 'sed_thickness_whittaker', 'cru
                 'lith4','lith5','lith6','lith7','lith8',
                 'lith9','lith10','lith11','lith12','lith13']
 
-filenames = ['lithology']
+filenames = ['acc_rate_archer']
 for n in np.arange(len(filenames)):
     np.savetxt(filenames[n]+'_std.txt', gridded_data[:,:,n], delimiter='\t')
 """
@@ -258,7 +263,7 @@ for n in np.arange(len(filenames)):
 """
 # View datasets
 plt.close('all')
-plt.imshow(gridded_data[:,:,n], cmap='plasma')
+plt.imshow(acc_rate_archer, cmap='plasma')
 plt.show = lambda : None  # prevents showing during doctests
 plt.show()
 """
