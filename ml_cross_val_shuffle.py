@@ -52,7 +52,7 @@ X = np.array(X)
 
 # Create a random dataset
 
-cycles = 20
+cycles = 10
 testsize = int(np.ceil(len(ml_train)/10))
 
 train_score = np.empty(cycles)
@@ -67,9 +67,10 @@ for n in np.arange(cycles):
                                                         )
     # Random Forest Regression
 
-    regr_rf = GradientBoostingRegressor(n_estimators=110,
-                                        min_samples_leaf=8,
-                                        criterion='friedman_mse')
+    regr_rf = GradientBoostingRegressor(loss='ls',n_estimators=120,
+                                          learning_rate=0.1,
+                                          min_samples_leaf=9,
+                                          criterion='friedman_mse')
     """
 
     regr_rf = RandomForestRegressor(n_estimators=60,

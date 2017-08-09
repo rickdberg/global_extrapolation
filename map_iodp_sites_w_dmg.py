@@ -57,8 +57,10 @@ f = rasterio.open(
 r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 
-# Load random forest grid into template
-fluxes = np.loadtxt('fluxes_rf_noridge.txt', delimiter='\t')
+# Load flux grid into template
+fluxes = np.loadtxt(
+r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_gbr.txt'
+, delimiter='\t')
 rf = rasterio.open('rf.nc', 'w', driver='GMT',
                              height=f.shape[0], width=f.shape[1],
                              count=1, dtype=fluxes.dtype,
@@ -66,9 +68,9 @@ rf = rasterio.open('rf.nc', 'w', driver='GMT',
 rf.write(fluxes, 1)
 src = rf
 rf.close()
-title = '$Scientific\ ocean\ drilling\ sites$\n $with\ Mg\ isotope\ data$'
+title = '$Mg\ fractionation\ in\ upper\ sediment\ column$'
 
-# Plot random forest grid
+# Plot flux grid
 # read image into ndarray
 im = src.read()
 
@@ -85,13 +87,14 @@ ymax = src.transform[5]
 crs = ccrs.PlateCarree()
 
 # create figure
+plt.figure(figsize=(15,9))
 ax = plt.axes(projection=crs)
-plt.title(title, fontsize=20)
+plt.title(title, fontsize=30)
 ax.set_xmargin(0.05)
 ax.set_ymargin(0.10)
 ax.set_xlim(-180,180)
 ax.set_ylim(-90,90)
-# ax.stock_img()
+ax.stock_img()
 
 
 # plot coastlines
@@ -101,18 +104,20 @@ ax.add_feature(cartopy.feature.COASTLINE, linewidth=0.3)
 # ax.add_feature(cartopy.feature.BORDERS, linestyle=':')
 #ax.add_feature(cartopy.feature.LAKES, alpha=0.5)
 # ax.add_feature(cartopy.feature.RIVERS)
-#ax.set_global()
-ax.stock_img()
+ax.set_global()
+#ax.stock_img()
 
 # To add points
 fname = site_metadata[['lon','lat']].as_matrix()
 
+#plt.contourf(grid_lons, grid_lats, im, [-0.01,0.0,0.005,0.01,0.015,0.02,0.03,0.04], transform=crs, vmin=-0.01, vmax=0.04)
+
 # points = list(cartopy.io.shapereader.Reader(fname).geometries())
 ax.scatter(site_coords_out[:,1], site_coords_out[:,0],
-           transform=ccrs.Geodetic(), c='b', s=70, label= 'positive fractionation')
+           transform=ccrs.Geodetic(), c='b', s=180, label= 'silicate-dominated fractionation')
 
 ax.scatter(site_coords_in[:,1], site_coords_in[:,0],
-           transform=ccrs.Geodetic(), c='y', s=70, label = 'negative fractionation')
+           transform=ccrs.Geodetic(), c='y', s=180, label = 'carbonate-dominated fractionation')
 
 
 gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
@@ -121,17 +126,9 @@ gl.xlabels_top = False
 gl.ylabels_right = False
 gl.xformatter = LONGITUDE_FORMATTER
 gl.yformatter = LATITUDE_FORMATTER
-plt.legend(loc='lower left')
+plt.legend(loc='lower left', scatterpoints=1, markerscale=1.1, fontsize='medium')
 plt.show()
 
+plt.savefig('iodp_dmg_sites.png', transparent=True)
 
-
-
-
-
-
-
-
-
-
-
+# eof

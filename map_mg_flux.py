@@ -15,6 +15,7 @@ from site_metadata_compiler_completed import comp
 import cartopy.crs as ccrs
 import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+plt.close('all')
 
 #Datasets to pull from
 database = "mysql://root:neogene227@localhost/iodp_compiled"
@@ -56,10 +57,8 @@ lon = f.xy(0,0)[0] + np.arange(f.width)*lon_interval
 lon[lon > 180] -= 360
 
 # Load flux grid into template
-
-
 fluxes = np.loadtxt(
-r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_rf.txt'
+r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_gbr.txt'
 , delimiter='\t')
 
 
@@ -88,18 +87,19 @@ ymax = src.transform[5]
 # define cartopy crs for the raster, based on rasterio metadata
 crs = ccrs.PlateCarree()
 
+plt.figure(figsize=(15,9))
 # create figure
 ax = plt.axes(projection=crs)
-plt.title(title)
+plt.title(title, fontsize=30)
 ax.set_xmargin(0.05)
 ax.set_ymargin(0.10)
 ax.set_xlim(-180,180)
 ax.set_ylim(-90,90)
-# ax.stock_img()
 
-# plot raster
+# Plot raster
 #plt.imshow(im, origin='upper', extent=[xmin, xmax, ymin, ymax], transform=crs)
-plt.contourf(grid_lons, grid_lats, im, [-0.01,0.0,0.005,0.01,0.015,0.02,0.03,0.05], transform=crs, vmin=-0.01, vmax=0.05)
+plt.contourf(grid_lons, grid_lats, im, [-0.01,0.0,0.005,0.01,0.015,0.02,0.03,0.04], transform=crs, vmin=-0.01, vmax=0.04)
+
 
 # plot coastlines
 # ax.coastlines(resolution='10m', color='k', linewidth=0.2)
@@ -118,14 +118,16 @@ fname = site_metadata[['lon','lat']].as_matrix()
 
 # points = list(cartopy.io.shapereader.Reader(fname).geometries())
 ax.scatter(fname[:,0], fname[:,1],
-           transform=ccrs.Geodetic(), c=np.array(site_fluxes).astype(float), s=30, vmin=-0.01, vmax=0.05)
+           transform=ccrs.Geodetic(), c=np.array(site_fluxes).astype(float), s=60, vmin=-0.01, vmax=0.05)
 
 gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                  color='gray', alpha=0.2, linestyle='--', )
+                  color='gray', alpha=0, linestyle='--', )
 gl.xlabels_top = False
 gl.ylabels_right = False
 gl.xformatter = LONGITUDE_FORMATTER
 gl.yformatter = LATITUDE_FORMATTER
 plt.show()
+
+plt.savefig('iodp_mg_fluxes.png', transparent=True)
 
 # eof

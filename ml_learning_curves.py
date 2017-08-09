@@ -31,10 +31,12 @@ Objectively pared down:
 
 """
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
-from site_metadata_compiler_completed import comp
 from sklearn.model_selection import ShuffleSplit
 from learning_curve import plot_learning_curve
+
+import site_metadata_compiler_completed as comp
 
 
 #Datasets to pull from
@@ -45,28 +47,31 @@ site_info = "site_info"
 hole_info = "summary_all"
 
 # Load site data
-site_metadata = comp(database, metadata, site_info, hole_info)
+site_metadata = comp.comp(database, metadata, site_info, hole_info)
 ml_train = site_metadata
-ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
+oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
 
 y = ml_train['interface_flux'].astype(float)
 y = np.array(y)  # .reshape(-1,1)
-X = ml_train[[
-  'etopo1_depth', 'surface_porosity',
-  'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-  'acc_rate_archer','toc_wood','sed_rate_combined'
- ]]
+
+X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
+                         'surface_productivity',
+                         'woa_temp', 'woa_salinity', 'woa_o2',
+                         'acc_rate_archer','toc_wood',
+                         'sed_rate_combined']], oc_burial), axis=1)
 X = np.array(X)
 
 # Plot Learning Curves
 
 title = "Learning Curves (Gradient Boosting)"
-# SVC is more expensive so we do a lower number of CV iterations:
 cv = ShuffleSplit(n_splits=20, test_size=0.10)
-estimator = GradientBoostingRegressor(n_estimators=120, min_samples_leaf=8)
-plot_learning_curve(estimator, title, X, y, (0.0, 1.01), cv=cv, n_jobs=-1)
+estimator = GradientBoostingRegressor(loss='ls',n_estimators=120,
+                                          learning_rate=0.1,
+                                          min_samples_leaf=9,
+                                          criterion='friedman_mse')
+plot_learning_curve(estimator, title, X, y, (0.0, 1.01), cv=10, n_jobs=-1)
 
-
+n_jobs=-1
 """
 title = "Learning Curves (Random Forest)"
 # Cross validation with 100 iterations to get smoother mean test and train

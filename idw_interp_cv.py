@@ -4,8 +4,8 @@ Created on Mon Apr 24 17:49:28 2017
 
 @author: rickdberg
 
-Script for nearest-neighbors inverse-distance weighted linear interpolation of
-flux values to be run on AWS EC2 instances
+Script for nearest-neighbors inverse-distance weighted linear interpolation
+cross-validation
 """
 
 import numpy as np
@@ -25,7 +25,7 @@ hole_info = "summary_all"
 
 # Load hole data
 site_metadata = comp(database, metadata, site_info, hole_info)
-site_metadata = site_metadata[site_metadata['advection'].astype(float) >= 0]
+#site_metadata = site_metadata[site_metadata['advection'].astype(float) >= 0]
 
 fluxes = site_metadata['interface_flux'].astype(float).as_matrix()
 site_coords = np.array(site_metadata[['lat', 'lon']])
@@ -46,7 +46,7 @@ for c in np.arange(cycles):
         idw[n+len(flux_test)*c,0] = flux_test[n]
         print(n)
 
-np.savetxt('idw_grid_cv.txt', idw, delimiter='\t')
+# np.savetxt('idw_grid_cv.txt', idw, delimiter='\t')
 
 slope, intercept, r_value, p_value, std_err = linregress(idw[:,0], idw[:,1])
 print('r_squared:', r_value**2)
@@ -55,11 +55,15 @@ r_squared = r_value**2
 # Plot
 plt.close('all')
 plt.scatter(idw[:,0], idw[:,1],
-            c="b", s=20, marker="o", alpha=1)
+            c="b", s=20, marker="o", alpha=1,
+            label="Cross-validation, r-squared=%.3f" % r_squared)
+
 plt.xlabel('Measured flux', fontsize=20)
 plt.ylabel('Estimated flux', fontsize=20)
-plt.xlim((-0.01, 0.04))
-plt.ylim((-0.01, 0.04))
-#plt.legend()
+plt.xlim((-0.01, 0.035))
+plt.ylim((-0.01, 0.035))
+plt.legend(loc='upper left', framealpha=0.1)
 plt.show()
+
+plt.savefig('idw_cv.png', facecolor='none')
 # eof

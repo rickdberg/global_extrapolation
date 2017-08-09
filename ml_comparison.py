@@ -45,11 +45,13 @@ ml_train = site_metadata
 # idw = pd.read_csv('idw_interp.csv', sep=',')
 # ml_train = pd.concat((site_metadata, training_inputs), axis=1)
 # ml_train = pd.concat((ml_train, idw), axis=1)
-oc_burial = ml_train['sed_rate'].astype(float)*ml_train['toc_combined'].astype(float)
+oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
+
 X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
-                         'acc_rate_archer',
-                         'sed_rate_combined','toc_combined'
-              ]], oc_burial), axis=1)
+                         'surface_productivity',
+                         'woa_temp', 'woa_salinity', 'woa_o2',
+                         'acc_rate_archer','toc_wood',
+                         'sed_rate_combined']], oc_burial), axis=1)
 
 X = np.array(X)
 
@@ -58,12 +60,13 @@ y = ml_train['interface_flux'].astype(float)
 y = np.array(y)  # .reshape(-1,1)
 
 # Create a random dataset
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15,
-                                                    random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
 
 # Random Forest Regression
-regr_rf = RandomForestRegressor(n_estimators=100,
-                                n_jobs=-1, min_samples_leaf=7)
+regr_rf = RandomForestRegressor(n_estimators=40,
+                                n_jobs=-1,
+                                min_samples_leaf=2,
+                                criterion = 'friedman_mse')
 regr_rf.fit(X_train, y_train)
 y_test_rf = regr_rf.predict(X_test)
 y_train_rf = regr_rf.predict(X_train)
@@ -81,9 +84,10 @@ y_test_ab = regr_ab.predict(X_test)
 y_train_ab = regr_ab.predict(X_train)
 
 # Gradient Boosting Regressor
-regr_gb = GradientBoostingRegressor(n_estimators=28,
-                                        min_samples_leaf=7,
-                                        criterion='friedman_mse')
+regr_gb = GradientBoostingRegressor(loss='ls',n_estimators=120,
+                                      learning_rate=0.1,
+                                      min_samples_leaf=9,
+                                      criterion='friedman_mse')
 regr_gb.fit(X_train, y_train)
 y_test_gb = regr_gb.predict(X_test)
 y_train_gb = regr_gb.predict(X_train)

@@ -101,9 +101,11 @@ regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_
 
 
 # Gradient Boosting Regressor
-regressor = GradientBoostingRegressor(n_estimators=120,
-                                    min_samples_leaf=8,
-                                    criterion='friedman_mse')
+regressor = GradientBoostingRegressor(loss='ls',n_estimators=120,
+
+                                          learning_rate=0.1,
+                                          min_samples_leaf=9,
+                                          criterion='friedman_mse')
 
 regressor.fit(X, y)
 
@@ -116,7 +118,7 @@ fluxes_masked[~np.isnan(flat_grid_data).any(axis=1)] = fluxes
 
 fluxes = np.empty(grid_areas.shape) * np.nan
 fluxes[~mask] = fluxes_masked
-np.savetxt('mg_flux_gbr.txt', fluxes, delimiter='\t')
+#np.savetxt('mg_flux_gbr.txt', fluxes, delimiter='\t')
 
 plt.close('all')
 plt.imshow(fluxes, cmap='plasma')

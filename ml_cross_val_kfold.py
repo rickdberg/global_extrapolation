@@ -41,19 +41,22 @@ site_metadata = comp.comp(database, metadata, site_info, hole_info)
 ml_train = site_metadata
 #ml_train = ml_train[ml_train['interface_flux'].astype(float) <= 0.04]
 #ml_train = ml_train[ml_train['interface_flux'].astype(float) >= -0.01]
-oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_combined'].astype(float)
-"""
+oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
+
 X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
+                         'surface_productivity',
+                         'woa_temp', 'woa_salinity', 'woa_o2',
+                         'acc_rate_archer','toc_wood',
+                         'sed_rate_combined']], oc_burial), axis=1)
+
+"""
+X = ml_train[['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
+  'crustal_age','coast_distance', 'ridge_distance', 'seamount',
   'surface_productivity',
   'woa_temp', 'woa_salinity', 'woa_o2',
-  'acc_rate_archer'
-                         ]], oc_burial), axis=1)
+  'acc_rate_archer','toc_wood',
+  'sed_rate_combined','lithology']]
 """
-X = ml_train[['etopo1_depth', 'surface_porosity',
-              'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-              'acc_rate_archer','toc_wood','sed_rate_combined'
-                         ]]
-
 X = np.array(X)
 
 y = ml_train['interface_flux'].astype(float)
@@ -62,30 +65,30 @@ y = np.array(y)  # .reshape(-1,1)
 # Create a random dataset
 
 n_splits = len(ml_train)
-y_predicted = np.empty(n_splits)
+y_predicted = np.empty(len(ml_train))
 cv = KFold(n_splits=n_splits)
+
+# Define regressor object
+"""
+regressor = GradientBoostingRegressor(loss='ls',n_estimators=120,
+                                      learning_rate=0.1,
+                                      min_samples_leaf=9,
+                                      criterion='friedman_mse')
+"""
+"""
+regressor = RandomForestRegressor(n_estimators=40,
+                                n_jobs=-1,
+                                min_samples_leaf=2,
+                                criterion = 'friedman_mse')
+"""
+
+regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
+
 
 for train_idx, test_idx in cv.split(X):
     X_train, X_test = X[train_idx], X[test_idx]
     y_train, y_test = y[train_idx], y[test_idx]
 
-    # Random Forest Regression
-    """
-    regressor = GradientBoostingRegressor(n_estimators=110,
-                                        min_samples_leaf=8,
-                                        criterion='friedman_mse')
-
-    """
-
-    regressor = RandomForestRegressor(n_estimators=40,
-                                    n_jobs=-1,
-                                    min_samples_leaf=2,
-                                    criterion = 'friedman_mse')
-
-
-    """
-    regressor = linear_model.LinearRegression(fit_intercept=True, normalize=True, n_jobs=-1)
-    """
     regressor.fit(X_train, y_train)
 
     y_predicted[test_idx] = regressor.predict(X_test)
@@ -94,17 +97,27 @@ slope, intercept, r_value, p_value, std_err = linregress(y, y_predicted)
 print('r_squared:', r_value**2)
 r_squared = r_value**2
 
-regressor.feature_importances_
+regressor.fit(X, y)
+y_predicted_all = regressor.predict(X)
+slope_all, intercept_all, r_value_all, p_value_all, std_err_all = linregress(y, y_predicted_all)
+r_squared_all = r_value_all**2
+
+# feature_imp = regressor.feature_importances_
 
 # Plot
 plt.close('all')
+plt.scatter(y, y_predicted_all,
+            c="orange", s=20, marker="s", alpha=0.7,
+            label="Training score, r-squared=%.3f" % np.average(r_squared_all))
 plt.scatter(y, y_predicted,
             c="b", s=20, marker="^", alpha=1,
-            label="Test Data, R-squared=%.4f" % r_squared)
+            label="Cross-validation, r-squared=%.3f" % r_squared)
 plt.xlabel('Measured flux', fontsize=20)
 plt.ylabel('Estimated flux', fontsize=20)
 plt.xlim((-0.01, 0.035))
 plt.ylim((-0.01, 0.035))
-plt.legend(loc='upper left')
+plt.legend(loc='upper left', framealpha=0.1)
 plt.show()
+
+plt.savefig('mlr_cv.png', facecolor='none')
 # eof

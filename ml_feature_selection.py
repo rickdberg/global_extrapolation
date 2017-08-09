@@ -10,7 +10,7 @@ Random forest feature selection
   'crustal_age','coast_distance', 'ridge_distance', 'seamount',
   'surface_productivity','toc_seiter', 'opal', 'caco3',
   'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
-  'caco3_archer','acc_rate_archer','toc_combined','toc_wood'
+  'caco3_archer','acc_rate_archer','toc_combined','toc_wood',
   'sed_rate_combined','lithology','lith1','lith2','lith3','lith4','lith5',
   'lith6','lith7','lith8','lith9','lith10','lith11','lith12',
   'lith13']
@@ -38,14 +38,25 @@ hole_info = "summary_all"
 # Load site data
 site_metadata = comp(database, metadata, site_info, hole_info)
 ml_train = site_metadata
-ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
 
-oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_combined'].astype(float)
-X = ml_train[['etopo1_depth', 'surface_porosity',
-  'surface_productivity','woa_temp', 'woa_salinity', 'woa_o2',
-  'acc_rate_archer','toc_wood','sed_rate_combined'
-                         ]]
+oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
 
+X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
+  'crustal_age','coast_distance', 'ridge_distance', 'seamount',
+  'surface_productivity','toc_seiter', 'opal', 'caco3',
+  'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
+  'caco3_archer','acc_rate_archer','toc_combined','toc_wood',
+  'sed_rate_combined']], oc_burial), axis=1)
+
+"""
+
+X = ml_train[['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
+  'crustal_age','coast_distance', 'ridge_distance', 'seamount',
+  'surface_productivity',
+  'woa_temp', 'woa_salinity', 'woa_o2',
+  'acc_rate_archer','toc_wood',
+  'sed_rate_combined','lithology']]
+"""
 X = np.array(X)
 
 
@@ -62,9 +73,10 @@ estimator = RandomForestRegressor(n_estimators=100,
                                 n_jobs=-1, min_samples_leaf=7
                                 , criterion = 'friedman_mse')
 """
-estimator = GradientBoostingRegressor(n_estimators=120,
-                                    min_samples_leaf=8,
-                                    criterion='friedman_mse')
+estimator = GradientBoostingRegressor(loss='ls',n_estimators=120,
+                                      learning_rate=0.1,
+                                      min_samples_leaf=9,
+                                      criterion='friedman_mse')
 
 # The "accuracy" scoring is proportional to the number of correct
 # classifications
