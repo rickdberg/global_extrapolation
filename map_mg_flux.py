@@ -11,6 +11,7 @@ Create maps
 import numpy as np
 import rasterio
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from site_metadata_compiler_completed import comp
 import cartopy.crs as ccrs
 import cartopy
@@ -87,10 +88,20 @@ ymax = src.transform[5]
 # define cartopy crs for the raster, based on rasterio metadata
 crs = ccrs.PlateCarree()
 
-plt.figure(figsize=(15,9))
 # create figure
+"""
+mpl.rcParams['font.family'] = 'serif'
+mpl.rcParams['font.serif'] = 'Palatino Linotype'
+
+"""
+mpl.rcParams['mathtext.fontset'] = 'custom'
+mpl.rcParams['mathtext.rm'] = 'Palatino Linotype'
+mpl.rcParams['mathtext.it'] = 'Palatino Linotype'
+mpl.rc('font',family='Palatino Linotype')
+
+plt.figure(figsize=(15,9))
 ax = plt.axes(projection=crs)
-plt.title(title, fontsize=30)
+plt.title(title, fontsize=30, **{'fontname':'Palatino Linotype'})
 ax.set_xmargin(0.05)
 ax.set_ymargin(0.10)
 ax.set_xlim(-180,180)

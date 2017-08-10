@@ -17,6 +17,7 @@ import rasterio
 from rasterio import Affine
 from rasterio.warp import reproject, Resampling
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from site_metadata_compiler_completed import comp
 import pandas as pd
 import cartopy.crs as ccrs
@@ -87,6 +88,11 @@ ymax = src.transform[5]
 crs = ccrs.PlateCarree()
 
 # create figure
+mpl.rcParams['mathtext.fontset'] = 'custom'
+mpl.rcParams['mathtext.rm'] = 'Palatino Linotype'
+mpl.rcParams['mathtext.it'] = 'Palatino Linotype'
+mpl.rc('font',family='Palatino Linotype')
+
 plt.figure(figsize=(15,9))
 ax = plt.axes(projection=crs)
 plt.title(title, fontsize=30)
