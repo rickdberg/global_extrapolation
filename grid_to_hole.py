@@ -10,7 +10,7 @@ Apply gridded datasets to individual hole locations
               'crustal_age','coast_distance', 'ridge_distance', 'seamount',
               'surface_productivity','toc_seiter', 'opal', 'caco3',
               'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
-              'caco3_archer','acc_rate_archer','toc_combined',
+              'caco3_archer','acc_rate_archer','toc_combined', 'toc_wood',
               'sed_rate_combined','lithology','lith1','lith2','lith3','lith4',
               'lith5','lith6','lith7','lith8','lith9','lith10','lith11',
               'lith12','lith13']
@@ -44,7 +44,7 @@ grid_names = ['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
               'crustal_age','coast_distance', 'ridge_distance', 'seamount',
               'surface_productivity','toc_seiter', 'opal', 'caco3',
               'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
-              'caco3_archer','acc_rate_archer','toc_combined',
+              'caco3_archer','acc_rate_archer','toc_combined', 'toc_wood',
               'sed_rate_combined','lithology','lith1','lith2','lith3','lith4',
               'lith5','lith6','lith7','lith8','lith9','lith10','lith11',
               'lith12','lith13']
@@ -88,6 +88,6 @@ for n in np.arange(len(grid_names)):
     hole_values = feature_pull(site_lat, site_lon, lat, lon, np.array(grid))
     hole_data = pd.concat((hole_data, pd.DataFrame(hole_values, columns=[grid_names[n]])), axis=1)
     print(n,'out of', len(grid_names))
-hole_data.to_csv('hole_grid_data.csv', index=False, na_rep='NULL')
+hole_data.to_csv('hole_grid_data_nghp18.csv', index=False, na_rep='NULL')
 
 # eof
