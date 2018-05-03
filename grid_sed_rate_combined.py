@@ -19,6 +19,9 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from geopy.distance import great_circle
 from mpl_toolkits.basemap import maskoceans
 
+from user_parameters import (ml_inputs_path, std_grids_path)
+
+
 # Function for opening grid files and retrieving datasets into arrays
 def rast(f_path):
     src = rasterio.open(f_path)
@@ -38,18 +41,14 @@ coarse_aff = Affine(360/(720), 0.0, -180.0,
                       0.0, -180/(360), 90)
 
 # Open all single layer gridded datasets
-sed_thickness_laske = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Laske - sed thickness\sedmap.grd"
-)
+sed_thickness_laske = rast(ml_inputs_path + "Laske - sed thickness\sedmap.grd")
 def sed_arrange(sed_thickness_laske):
     st_left = sed_thickness_laske[:,1:int((sed_thickness_laske.shape[1]+1)/2+1)]
     st_right = sed_thickness_laske[:,int((sed_thickness_laske.shape[1])/2+1):]
     return np.concatenate((st_right, st_left), axis=1)
 sed_thickness_laske = sed_arrange(sed_thickness_laske)*1000
 
-sed_thickness_whittaker = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Whittaker - sed thickness\sedthick_world_v2.grd"
-)
+sed_thickness_whittaker = rast(ml_inputs_path + "Whittaker - sed thickness\sedthick_world_v2.grd")
 def sed_arrange(sed_thickness_whittaker):
     top_filler = np.empty((112,sed_thickness_whittaker.shape[1])) * np.nan
     bottom_filler = np.empty((224,sed_thickness_whittaker.shape[1])) * np.nan
@@ -59,13 +58,9 @@ def sed_arrange(sed_thickness_whittaker):
     return np.concatenate((st_right, st_left), axis=1)
 sed_thickness_whittaker = sed_arrange(sed_thickness_whittaker)
 
-sed_thickness_divins = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Divins - sed thickness\sedthick_world.grd"
-)
+sed_thickness_divins = rast(ml_inputs_path + "Divins - sed thickness\sedthick_world.grd")
 
-crustal_age = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Muller - crustal age\age.3.2.nc"
-)
+crustal_age = rast(ml_inputs_path + "Muller - crustal age\age.3.2.nc")
 
 # Resample all grids to match 5" pixel-registered porosity grid
 reg_datasets = [sed_thickness_divins,sed_thickness_laske, crustal_age]
@@ -186,12 +181,12 @@ for n in np.arange(len(grid_coords)):
 sed_rate_masked[np.isnan(sed_rate_masked)] = sed_rate_masked_nans
 
 
-np.savetxt('sed_rate_masked.txt', sed_rate_masked.data, delimiter='\t')
+# np.savetxt('sed_rate_masked.txt', sed_rate_masked.data, delimiter='\t')
 
 # Plot grid
 
 # Load 'sed_rate', grid
-fluxes = np.log(sed_rate)
+fluxes = np.nanlog(sed_rate_masked)
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
                              height=coarse_shape[0], width=coarse_shape[1],
@@ -242,9 +237,7 @@ gl.yformatter = LATITUDE_FORMATTER
 plt.show()
 
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
-)
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd")
 newaff = f.transform
 top_left = f.transform * (0,0)
 bottom_right = f.transform * (f.width, f.height)
@@ -257,7 +250,7 @@ f.close()
 
 sed_rate = resamp(sed_rate_masked, Resampling.bilinear, fine_shape, fine_aff)
 
-np.savetxt('sed_rate_combined.txt', sed_rate, delimiter='\t')
+np.savetxt(std_grids_path + 'sed_rate_combined_std.txt', sed_rate, delimiter='\t')
 
 
 # eof

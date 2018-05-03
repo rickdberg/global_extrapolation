@@ -18,6 +18,8 @@ import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from mpl_toolkits.basemap import maskoceans
 
+from user_parameters import (ml_inputs_path, std_grids_path)
+
 
 # Function for opening grid files and retrieving datasets into arrays
 def rast(f_path):
@@ -30,9 +32,7 @@ def rast(f_path):
 
 newarr_shape = (2160,4320)
 
-toc_jahnke = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Jahnke - TOC burial\OrganicCDistribution.csv"
-, delimiter=',')
+toc_jahnke = np.loadtxt(ml_inputs_path + "Jahnke - TOC burial\OrganicCDistribution.csv", delimiter=',')
 def jahnke_arrange(toc_jahnke):
     st_left = toc_jahnke[:,:30]
     st_right = toc_jahnke[:,30:]
@@ -44,9 +44,7 @@ def jahnke_arrange(toc_jahnke):
     return np.concatenate((top_filler, cut, bottom_filler))
 toc_jahnke = jahnke_arrange(toc_jahnke)
 
-toc = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Seiter - TOC\TOC_Seiteretal2004.asc"
-)
+toc = rast(ml_inputs_path + "Seiter - TOC\TOC_Seiteretal2004.asc")
 def toc_fill(toc):
     top_filler = np.empty((4,toc.shape[1])) * np.nan
     toc[toc > 100] = np.nan
@@ -54,13 +52,11 @@ def toc_fill(toc):
     return np.concatenate((top_filler, toc))
 toc_seiter = toc_fill(toc)
 
-sed_rate = np.loadtxt('sed_rate_combined.txt', delimiter='\t')
+sed_rate = np.loadtxt(std_grids_path + 'sed_rate_combined_std.txt', delimiter='\t')
 toc_marquardt = 3 - 2.8*np.exp(-44.5*sed_rate*100)
 
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
-)
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd")
 newaff = f.transform
 top_left = f.transform * (0,0)
 bottom_right = f.transform * (f.width, f.height)
@@ -127,7 +123,7 @@ toc = np.ma.masked_array(toc,
                          fill_value=np.nan)
 toc.data[mask] = np.nan
 
-np.savetxt('toc_combined.txt', toc.data, delimiter='\t')
+np.savetxt(std_grids_path + 'toc_combined_std.txt', toc.data, delimiter='\t')
 
 # Plot grid
 # Load 'sed_rate', grid

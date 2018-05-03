@@ -9,18 +9,18 @@ Unpack 4D NETCDF file variables for 2D bottom-water value grids
 import numpy as np
 import netCDF4 as ncdf
 
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs"
+from user_parameters import (ml_inputs_path)
 
 nc_files = [
-"{}\WOA - water temp, salinity\woa13_decav_t00_04v2.nc".format(directory),
-"{}\WOA - water temp, salinity\woa13_decav_s00_04v2.nc".format(directory),
-"{}\WOA - water temp, salinity\woa13_all_o00_01.nc".format(directory)
+ml_inputs_path + "WOA - water temp, salinity\woa13_decav_t00_04v2.nc",
+ml_inputs_path + "WOA - water temp, salinity\woa13_decav_s00_04v2.nc",
+ml_inputs_path + "WOA - water temp, salinity\woa13_all_o00_01.nc"
 ]
 
 nc_write = [
-'bottom_temp_original.csv',
-'bottom_salintity_original.csv',
-'bottom_o2_original.csv'
+ml_inputs_path + "WOA - water temp, salinity\bottom_temp_original.csv",
+ml_inputs_path + "WOA - water temp, salinity\bottom_salintity_original.csv",
+ml_inputs_path + "WOA - water temp, salinity\bottom_o2_original.csv"
 ]
 
 nc_vars = [

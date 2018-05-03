@@ -10,11 +10,11 @@ Pair plots for gridded data
 import numpy as np
 
 import rasterio
+from user_parameters import (std_grids_path, ml_inputs_path)
 
 
 # Load gridded data
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -29,11 +29,9 @@ f.close()
 grid_lons, grid_lats = np.meshgrid(lon, lat)
 lons = grid_lons.flatten()
 lats = grid_lats.flatten()
-np.savetxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\lats_std.txt"
+np.savetxt(std_grids_path + "lats_std.txt"
 ,grid_lats, delimiter='\t')
-np.savetxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\lons_std.txt"
+np.savetxt(std_grids_path + "lons_std.txt"
 ,grid_lons, delimiter='\t')
 
 # eof

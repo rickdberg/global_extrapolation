@@ -12,10 +12,10 @@ import numpy as np
 from mpl_toolkits.basemap import maskoceans
 import rasterio
 
+from user_parameters import (std_grids_path, ml_inputs_path)
 
 # Load gridded data
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -39,6 +39,6 @@ ocmask = maskoceans(locations[:,0],locations[:,1], fakedata,
 mask = np.ma.reshape(ocmask, (len(lat),len(lon)))
 mask = ~mask.mask
 mask = mask.astype('bool')
-np.savetxt('continent_mask.txt', mask, delimiter='\t')
+np.savetxt(std_grids_path + 'continent_mask.txt', mask, delimiter='\t')
 
 # eof

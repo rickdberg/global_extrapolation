@@ -10,24 +10,10 @@ Module for running Random Forest Classifier on flux data
   'crustal_age','coast_distance', 'ridge_distance', 'seamount',
   'surface_productivity','toc_seiter', 'opal', 'caco3',
   'sed_rate_burwicz', 'woa_temp', 'woa_salinity', 'woa_o2',
-  'caco3_archer','acc_rate_archer','toc_combined','toc_wood'
+  'caco3_archer','acc_rate_archer','toc_combined','toc_wood',
   'sed_rate_combined','lithology','lith1','lith2','lith3','lith4','lith5',
   'lith6','lith7','lith8','lith9','lith10','lith11','lith12',
   'lith13']
-
-Best starting set:
-[
- 'lat','lon', 'etopo1_depth', 'surface_porosity',
- 'sed_thickness', 'crustal_age','coast_distance',
- 'ridge_distance', 'seamount', 'surface_productivity'
- ]
-
-
-Objectively pared down:
- ['lat','lon', 'etopo1_depth',
-  'coast_distance',
- 'ridge_distance', 'woa_temp', 'woa_salinity',
- ]
 
 """
 import numpy as np
@@ -38,27 +24,22 @@ from learning_curve import plot_learning_curve
 
 import site_metadata_compiler_completed as comp
 
+from user_parameters import (engine, metadata_table,
+                             site_info, hole_info)
 
-#Datasets to pull from
-database = "mysql://root:neogene227@localhost/iodp_compiled"
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs"
-metadata = "metadata_mg_flux"
-site_info = "site_info"
-hole_info = "summary_all"
+meth = 'gbr'
+features = ['etopo1_depth', 'surface_porosity','surface_productivity',
+            'woa_temp', 'sed_rate_combined']
 
 # Load site data
-site_metadata = comp.comp(database, metadata, site_info, hole_info)
+site_metadata = comp.comp(engine, metadata_table, site_info, hole_info)
 ml_train = site_metadata
-oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
+# oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
 
 y = ml_train['interface_flux'].astype(float)
 y = np.array(y)  # .reshape(-1,1)
 
-X = pd.concat((ml_train[['etopo1_depth', 'surface_porosity',
-                         'surface_productivity',
-                         'woa_temp', 'woa_salinity', 'woa_o2',
-                         'acc_rate_archer','toc_wood',
-                         'sed_rate_combined']], oc_burial), axis=1)
+X = ml_train[features]
 X = np.array(X)
 
 # Plot Learning Curves

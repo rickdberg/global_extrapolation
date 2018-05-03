@@ -17,14 +17,11 @@ import matplotlib.pyplot as plt
 import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
+from user_parameters import (std_grids_path, ml_inputs_path)
 
-
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files"
 
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
-)
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd")
 newaff = f.transform
 top_left = f.transform * (0,0)
 bottom_right = f.transform * (f.width, f.height)
@@ -35,20 +32,16 @@ lon = f.xy(0,0)[0] + np.arange(f.width)*lon_interval
 lon[lon > 180] -= 360
 f.close()
 
-grid = pd.read_csv("{}//etopo1_depth_std.txt".format(directory), sep='\t', header=None)
+grid = pd.read_csv(std_grids_path + "etopo1_depth_std.txt", sep='\t', header=None)
 grid = grid.as_matrix() * -1
-
 grid[grid[:,:] <= 0] = np.nan
-
-
 sed_rate = ((0.117/(1+(grid/200)**3))+(0.006/(1+(grid/4000)**10)))/100
 
-np.savetxt('sed_rate_burwicz_std.txt', sed_rate, delimiter='\t')
+np.savetxt(std_grids_path + 'sed_rate_burwicz_std.txt', sed_rate, delimiter='\t')
 
 
 
 # Plot grid
-
 # Load 'sed_rate', grid
 fluxes = sed_rate
 
@@ -60,9 +53,6 @@ woas.write(fluxes, 1)
 src = woas
 woas.close()
 title = '$Sedimentation\ rate\ Burwicz\ (m/y)$'
-
-
-
 
 # Read image into ndarray
 im = src.read()
@@ -105,9 +95,3 @@ gl.yformatter = LATITUDE_FORMATTER
 plt.show()
 
 # eof
-
-
-
-
-
-

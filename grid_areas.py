@@ -10,10 +10,10 @@ Make global gridded dataset of areas, 5'x5', grid-centered
 import numpy as np
 import rasterio
 
+from user_parameters import (ml_inputs_path, std_grids_path)
 
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -31,6 +31,6 @@ grid_areas = np.empty((len(lat), len(lon)))
 for n in np.arange(len(lat)):
     #grid_areas[n,:] = 9.265*9.277*np.cos(lat[n]*2*np.pi/360)
     grid_areas[n,:] = (np.sin((lat[n]+0.5/12)*2*np.pi/360) - np.sin((lat[n]-0.5/12)*2*np.pi/360)) * (1/12*2*np.pi/360) * 6371**2
-np.savetxt('grid_areas.txt', grid_areas, delimiter='\t')
+np.savetxt(std_grids_path + 'grid_areas_std.txt', grid_areas, delimiter='\t')
 
 # eof

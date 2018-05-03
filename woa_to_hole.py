@@ -10,25 +10,15 @@ Assign World Ocean Atlas bottom-water values to every drilling hole
 import numpy as np
 import netCDF4 as ncdf
 import pandas as pd
-import MySQLdb
-from matplotlib import pyplot
 import scipy as sp
 
-
-# Connect to database
-user = 'root'
-passwd = 'neogene227'
-host = '127.0.0.1'
-db = 'iodp_compiled'
-hole_table = 'summary_all'
-con = MySQLdb.connect(user=user, passwd=passwd, host=host, db=db)
-cursor = con.cursor()
+from user_parameters import (engine, hole_info, ml_inputs_path)
 
 # Pore water chemistry data
 sql = """SELECT *
 FROM {}
-; """.format(hole_table)
-hole_data = pd.read_sql(sql, con)
+; """.format(hole_info)
+hole_data = pd.read_sql(sql, engine)
 site_lat = hole_data['lat']
 site_lon = hole_data['lon']
 
@@ -36,9 +26,9 @@ site_lon = hole_data['lon']
 directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs"
 
 nc_files = [
-"{}\WOA - water temp, salinity\woa13_decav_t00_04v2.nc".format(directory),
-"{}\WOA - water temp, salinity\woa13_decav_s00_04v2.nc".format(directory),
-"{}\WOA - water temp, salinity\woa13_all_o00_01.nc".format(directory)
+ml_inputs_path + "WOA - water temp, salinity\woa13_decav_t00_04v2.nc",
+ml_inputs_path + "WOA - water temp, salinity\woa13_decav_s00_04v2.nc",
+ml_inputs_path + "WOA - water temp, salinity\woa13_all_o00_01.nc"
 ]
 
 nc_vars = [
@@ -47,9 +37,9 @@ nc_vars = [
 ]
 
 woa_bottom = [
-"{}\WOA - water temp, salinity\\bottom_temp_original.csv".format(directory),
-"{}\WOA - water temp, salinity\\bottom_salintity_original.csv".format(directory),
-"{}\WOA - water temp, salinity\\bottom_o2_original.csv".format(directory)
+ml_inputs_path + "WOA - water temp, salinity\\bottom_temp_original.csv",
+ml_inputs_path + "WOA - water temp, salinity\\bottom_salintity_original.csv",
+ml_inputs_path + "WOA - water temp, salinity\\bottom_o2_original.csv"
 ]
 
 woa_names = [
@@ -85,8 +75,5 @@ for n in np.arange(len(woa_bottom)):
     hole_values = feature_pull(site_lat, site_lon, lat, lon, np.array(pd.read_csv(woa_bottom[n], header=None)))
     hole_data = pd.concat((hole_data, pd.DataFrame(hole_values, columns=[woa_names[n]])), axis=1)
 hole_data.to_csv('hole_data.csv', index=False, na_rep='NULL')
-
-
-
 
 # eof

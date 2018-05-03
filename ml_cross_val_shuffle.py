@@ -20,21 +20,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
+from sklearn import linear_model
 from site_metadata_compiler_completed import comp
-from sklearn.model_selection import ShuffleSplit
 
+from user_parameters import (engine, metadata_table,
+                             site_info, hole_info)
+
+meth = 'gbr'
 
 #Datasets to pull from
-database = "mysql://root:neogene227@localhost/iodp_compiled"
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs"
-metadata = "metadata_mg_flux"
-site_info = "site_info"
-hole_info = "summary_all"
 lat_name = 'lat'
 lon_name = 'lon'
 
 # Load site data
-site_metadata = comp(database, metadata, site_info, hole_info)
+site_metadata = comp(engine, metadata_table, site_info, hole_info)
 ml_train = site_metadata
 ml_train = ml_train[ml_train['advection'].astype(float) >= 0]
 ml_train = ml_train[ml_train['site'] != '796']
@@ -65,26 +64,37 @@ for n in np.arange(cycles):
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         test_size=testsize
                                                         )
-    # Random Forest Regression
+        # Define regressor object
+    if meth == 'gbr':
+        regressor = GradientBoostingRegressor(loss='ls',n_estimators=200,
+                                              learning_rate=0.1,
+                                              min_samples_leaf=9,
+                                              criterion='friedman_mse')
+    elif meth == 'rf':
+        regressor = RandomForestRegressor(n_estimators=200,
+                                          n_jobs=-1,
+                                          min_samples_leaf=3,
+                                          criterion = 'friedman_mse')
+    elif meth == 'mlr':
+        regressor = linear_model.LinearRegression(fit_intercept=True,
+                                                  normalize=True,
+                                                  n_jobs=-1)
+    elif meth == 'abr':
+        regressor = AdaBoostRegressor(loss='linear',
+                                      n_estimators=200,
+                                      learning_rate=0.1)
+    else:
+        print('Choose an available modeling method')
+        quit()
 
-    regr_rf = GradientBoostingRegressor(loss='ls',n_estimators=120,
-                                          learning_rate=0.1,
-                                          min_samples_leaf=9,
-                                          criterion='friedman_mse')
-    """
-
-    regr_rf = RandomForestRegressor(n_estimators=60,
-                                n_jobs=-1, min_samples_leaf=4
-                                , criterion = 'mae')
-    """
-    regr_rf.fit(X_train, y_train)
+    regressor.fit(X_train, y_train)
 
     y_train_orig[:,n] = y_train
     y_test_orig[:,n] = y_test
-    y_test_rf[:,n] = regr_rf.predict(X_test)
-    y_train_rf[:,n] = regr_rf.predict(X_train)
-    train_score[n] = regr_rf.score(X_train, y_train)
-    test_score[n] = regr_rf.score(X_test, y_test)
+    y_test_rf[:,n] = regressor.predict(X_test)
+    y_train_rf[:,n] = regressor.predict(X_train)
+    train_score[n] = regressor.score(X_train, y_train)
+    test_score[n] = regressor.score(X_test, y_test)
 
 # Plot
 plt.close('all')
@@ -99,3 +109,5 @@ plt.ylabel('Estimated flux', fontsize=20)
 plt.xlim((-0.01, 0.04))
 plt.ylim((-0.01, 0.04))
 plt.legend(loc='upper left')
+
+# eof

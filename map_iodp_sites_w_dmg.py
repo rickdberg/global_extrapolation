@@ -11,11 +11,6 @@ Create maps
 """
 
 import numpy as np
-import scipy as sp
-from sqlalchemy import create_engine
-import rasterio
-from rasterio import Affine
-from rasterio.warp import reproject, Resampling
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from site_metadata_compiler_completed import comp
@@ -24,14 +19,20 @@ import cartopy.crs as ccrs
 import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
-#Datasets to pull from
-database = "mysql://root:neogene227@localhost/iodp_compiled"
-metadata = "metadata_mg_flux"
-site_info = "site_info"
-hole_info = "summary_all"
-engine = create_engine(database)
+from user_parameters import (engine, metadata_table,
+                             site_info, hole_info,
+                             ml_outputs_path)
+
+# Define fonts
+mpl.rcParams['mathtext.fontset'] = 'custom'
+mpl.rcParams['mathtext.rm'] = 'Verdana'
+mpl.rcParams['mathtext.it'] = 'Verdana'
+mpl.rc('font',family='sans-serif')
+mpl.rcParams['font.sans-serif'] = 'Verdana'
+mpl.rcParams['font.cursive'] = 'Verdana'
+
 # Load site data
-site_metadata = comp(database, metadata, site_info, hole_info)
+site_metadata = comp(engine, metadata_table, site_info, hole_info)
 
 sql = """select site, avg(lat) as alat, avg(lon) as alon
     from summary_all
@@ -53,45 +54,12 @@ sql = """select site, avg(lat) as alat, avg(lon) as alon
 site_coords_out  = pd.read_sql(sql, engine)
 site_coords_out = site_coords_out[['alat', 'alon']].as_matrix()
 
-# Get template
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
-)
 
-# Load flux grid into template
-fluxes = np.loadtxt(
-r'C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ml_outputs\mg_flux_gbr.txt'
-, delimiter='\t')
-rf = rasterio.open('rf.nc', 'w', driver='GMT',
-                             height=f.shape[0], width=f.shape[1],
-                             count=1, dtype=fluxes.dtype,
-                             crs='+proj=latlong', transform=f.transform)
-rf.write(fluxes, 1)
-src = rf
-rf.close()
-title = '$Mg\ fractionation\ in\ upper\ sediment\ column$'
-
-# Plot flux grid
-# read image into ndarray
-im = src.read()
-
-# transpose the array from (band, row, col) to (row, col, band)
-im = np.transpose(im, [1,2,0])
-im = im[:,:,0]
-
-
-xmin = src.transform[2]
-xmax = src.transform[2] + src.transform[0]*src.width
-ymin = src.transform[5] + src.transform[4]*src.height
-ymax = src.transform[5]
 # define cartopy crs for the raster, based on rasterio metadata
 crs = ccrs.PlateCarree()
 
 # create figure
-mpl.rcParams['mathtext.fontset'] = 'custom'
-mpl.rcParams['mathtext.rm'] = 'Palatino Linotype'
-mpl.rcParams['mathtext.it'] = 'Palatino Linotype'
-mpl.rc('font',family='Palatino Linotype')
+title = '$Mg\ fractionation\ in\ upper\ sediment\ column$'
 
 plt.figure(figsize=(15,9))
 ax = plt.axes(projection=crs)
@@ -101,7 +69,6 @@ ax.set_ymargin(0.10)
 ax.set_xlim(-180,180)
 ax.set_ylim(-90,90)
 ax.stock_img()
-
 
 # plot coastlines
 #ax.add_feature(cartopy.feature.LAND)
@@ -135,6 +102,6 @@ gl.yformatter = LATITUDE_FORMATTER
 plt.legend(loc='lower left', scatterpoints=1, markerscale=1.1, fontsize='medium')
 plt.show()
 
-plt.savefig('iodp_dmg_sites.png', transparent=True)
+plt.savefig(ml_outputs_path + 'iodp_dmg_sites.png', transparent=True)
 
 # eof

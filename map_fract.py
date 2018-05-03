@@ -17,30 +17,20 @@ from mpl_toolkits.basemap import Basemap
 from matplotlib.collections import PathCollection
 from matplotlib.path import Path
 from pylab import savefig
+import cmocean
 
 from user_parameters import (engine, metadata_table,
-                             site_info, hole_info, ml_outputs_path,
-                             std_grids_path, ml_inputs_path)
-
-
-meth = 'gbr'
-
-# Define fonts
-mpl.rcParams['mathtext.fontset'] = 'custom'
-mpl.rcParams['mathtext.rm'] = 'Verdana'
-mpl.rcParams['mathtext.it'] = 'Verdana'
-mpl.rc('font',family='sans-serif')
-mpl.rcParams['font.sans-serif'] = 'Verdana'
-mpl.rcParams['font.cursive'] = 'Verdana'
+                             site_info, hole_info, std_grids_path,
+                             ml_inputs_path, ml_outputs_path)
 
 plt.close('all')
 
 # Load site data
 site_metadata = comp(engine, metadata_table, site_info, hole_info)
-site_fluxes = site_metadata['interface_flux']
-site_lat = site_metadata['lat']
-site_lon = site_metadata['lon']
-site_fluxes = np.array(site_fluxes).astype(float)*1000
+isodata = site_metadata[site_metadata['alpha'].notnull()]
+site_lat = isodata['lat']
+site_lon = isodata['lon']
+epsilon = (isodata['alpha'].astype(float) - 1) * 1000
 
 # Load coordinates
 grid_lats = np.loadtxt(std_grids_path + "lats_std.txt"
@@ -65,27 +55,33 @@ lat = f.xy(0,0)[1] + np.arange(f.height)*lat_interval
 lon = f.xy(0,0)[0] + np.arange(f.width)*lon_interval
 lon[lon > 180] -= 360
 
-# Load flux grid into template
-fluxes = np.loadtxt(ml_outputs_path + 'mg_flux_{}.txt'.format(meth)
+# Load fractionation grid into template
+fract = np.loadtxt(ml_outputs_path + 'mg_fract.txt'
 , delimiter='\t')
-
 
 rf = rasterio.open('rf.nc', 'w', driver='GMT',
                              height=f.shape[0], width=f.shape[1],
-                             count=1, dtype=fluxes.dtype,
+                             count=1, dtype=fract.dtype,
                              crs='+proj=latlong', transform=f.transform)
 f.close()
-rf.write(fluxes, 1)
+rf.write(fract, 1)
 src = rf
 rf.close()
 
-# Plot random forest grid
-# read image into ndarray
+# Read image into ndarray
 im = src.read()
 
 # transpose the array from (band, row, col) to (row, col, band)
 im = np.transpose(im, [1,2,0])
-im = im[:,:,0]*1000
+im = im[:,:,0]
+
+# Define fonts
+mpl.rcParams['mathtext.fontset'] = 'custom'
+mpl.rcParams['mathtext.rm'] = 'Verdana'
+mpl.rcParams['mathtext.it'] = 'Verdana'
+mpl.rc('font',family='sans-serif')
+mpl.rcParams['font.sans-serif'] = 'Verdana'
+mpl.rcParams['font.cursive'] = 'Verdana'
 
 # Create Figure
 plt.close('all')
@@ -108,7 +104,7 @@ coll = PathCollection(paths,
 m.fillcontinents(color='0.6', lake_color='0.6')
 
 m.drawparallels(np.arange(-90.,90.,30.),
-                color='0.4',
+                color='0.5',
                 linewidth=0.5,
                 textcolor='k',
                 labels=[0,1,0,0],
@@ -116,7 +112,7 @@ m.drawparallels(np.arange(-90.,90.,30.),
                 ax=ax,
                 fontsize=10)
 m.drawmeridians(np.arange(0.,360.,60.),
-                color='0.4',
+                color='0.5',
                 linewidth=0.5,
                 dashes=(None,None),
                 ax=ax)
@@ -140,11 +136,10 @@ g_lons, g_lats = m(grid_lons, grid_lats)
 data1 = m.contourf(g_lons,
            g_lats,
            im,
-           colors = ['#ff3333','#6699ff','#0066ff','#0000cc','#000099','#000066'],
-           # cmap='seismic_r',
-           levels=[-5,0,5,10,15,20,40],
-           vmin=-20,
-           vmax=20,
+           cmap=cmocean.cm.delta,
+           levels=[-3,-2,-1,0,1,2],
+           vmin=-3,
+           vmax=3,
            ax=ax)
 cbar = fig.colorbar(mappable=data1,
                 orientation='horizontal',
@@ -153,36 +148,25 @@ cbar = fig.colorbar(mappable=data1,
                 ax=ax,
                 shrink=0.7)
 
-cbar.set_label('$mmol\ m^{-2}\ y^{-1}$', fontsize=10)
+cbar.set_label(r'$\epsilon\ ^{^{\frac{26}{24}}}Mg\ (‰)$', fontsize=10)
 cbar.ax.tick_params(labelsize=10)
 # cbar.ax.xaxis.set_label_position('top')
 
 # To add points
-fname = site_metadata[['lon','lat']].as_matrix()
+fname = isodata[['lon','lat']].as_matrix()
 point_lon = fname[:,0]
 point_lat = fname[:,1]
-
-site_fluxes[site_fluxes < 0] = -2.5
-site_fluxes[(site_fluxes >= 0) & (site_fluxes < 5)] = 2.5
-site_fluxes[(site_fluxes >= 5) & (site_fluxes < 10)] = 7.5
-site_fluxes[(site_fluxes >= 10) & (site_fluxes < 15)] = 12.5
-site_fluxes[(site_fluxes >= 15) & (site_fluxes < 20)] = 17.5
-site_fluxes[site_fluxes >= 20] = 40
 
 lons, lats = m(point_lon, point_lat)
 data2 = m.scatter(lons,
           lats,
           c='#ffff00',
-          cmap='seismic_r',
-          edgecolors='k',
-          linewidth=0.3,
-          s=10,
-          vmin=-20,
-          vmax=20,
+          s=50,
           ax=ax)
-plt.show()
 
-savefig(ml_outputs_path + 'mg_flux_map_{}.pdf'.format(meth), dpi=1000)
-savefig(ml_outputs_path + 'mg_flux_map_{}.eps'.format(meth), dpi=1000)
+# plt.show()
+
+savefig(ml_outputs_path + 'fract_map.pdf', dpi=1000)
+savefig(ml_outputs_path + 'fract_map.eps', dpi=1000)
 
 # eof

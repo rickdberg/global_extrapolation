@@ -11,36 +11,28 @@ Create maps
 """
 
 import numpy as np
-import scipy as sp
-from sqlalchemy import create_engine
 import rasterio
 from rasterio import Affine
 from rasterio.warp import reproject, Resampling
 import matplotlib.pyplot as plt
 from site_metadata_compiler_completed import comp
-import pandas as pd
 import cartopy.crs as ccrs
 import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
-#Datasets to pull from
-database = "mysql://root:neogene227@localhost/iodp_compiled"
-metadata = "metadata_mg_flux"
-site_info = "site_info"
-hole_info = "summary_all"
+from user_parameters import (engine, metadata_table,
+                             site_info, hole_info, std_grids_path, ml_inputs_path)
 
 # Load site data
-site_metadata = comp(database, metadata, site_info, hole_info)
+site_metadata = comp(engine, metadata_table, site_info, hole_info)
 
-mask = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\grid_mask.txt"
+mask = np.loadtxt(std_grids_path + "continent_mask.txt"
 , delimiter='\t')
 mask = mask.astype('bool')
 
 
 # Get template
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -62,7 +54,7 @@ rf.write(fluxes, 1)
 src = rf
 rf.close()
 """
-title = '$Sites\ with\ quantified\ Mg\ fluxes$'
+title = '$Sites\ with\ quantified\ fluxes$'
 
 """
 # Plot random forest grid
@@ -118,14 +110,4 @@ gl.xformatter = LONGITUDE_FORMATTER
 gl.yformatter = LATITUDE_FORMATTER
 plt.show()
 
-
-
-
-
-
-
-
-
-
-
-
+# eof

@@ -17,28 +17,18 @@ Apply gridded datasets to individual hole locations
 """
 import numpy as np
 import pandas as pd
-import MySQLdb
 import scipy as sp
 import rasterio
 
-# Connect to database
-user = 'root'
-passwd = 'neogene227'
-host = '127.0.0.1'
-db = 'iodp_compiled'
-hole_table = 'summary_all_bare'
-con = MySQLdb.connect(user=user, passwd=passwd, host=host, db=db)
-cursor = con.cursor()
+from user_parameters import (engine, hole_info, std_grids_path, ml_inputs_path)
 
 # Hole data
 sql = """SELECT *
 FROM {}
-; """.format(hole_table)
-hole_data = pd.read_sql(sql, con)
+; """.format(hole_info)
+hole_data = pd.read_sql(sql, engine)
 site_lat = hole_data['lat']
 site_lon = hole_data['lon']
-
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files"
 
 grid_names = ['etopo1_depth', 'surface_porosity', 'sed_thickness_combined',
               'crustal_age','coast_distance', 'ridge_distance', 'seamount',
@@ -69,8 +59,7 @@ def feature_pull(site_lat, site_lon, lat, lon, z):
     return z[lat_idx, lon_idx]
 
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -84,10 +73,10 @@ f.close()
 
 # Assign grid values to each hole
 for n in np.arange(len(grid_names)):
-    grid = pd.read_csv("{}//{}_std.txt".format(directory, grid_names[n]), sep='\t', header=None)
+    grid = pd.read_csv(std_grids_path + "{}_std.txt".format(grid_names[n]), sep='\t', header=None)
     hole_values = feature_pull(site_lat, site_lon, lat, lon, np.array(grid))
     hole_data = pd.concat((hole_data, pd.DataFrame(hole_values, columns=[grid_names[n]])), axis=1)
     print(n,'out of', len(grid_names))
-hole_data.to_csv('hole_grid_data_nghp18.csv', index=False, na_rep='NULL')
+hole_data.to_csv('hole_grid_data.csv', index=False, na_rep='NULL')
 
 # eof

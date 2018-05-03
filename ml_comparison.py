@@ -20,30 +20,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
-from site_metadata_compiler_completed import comp
 from sklearn import linear_model
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import cross_val_score
 import matplotlib.gridspec as gridspec
 from learning_curve import plot_learning_curve
-# import xgboost as xgb
+
+from site_metadata_compiler_completed import comp
+from user_parameters import (engine, metadata_table,
+                             site_info, hole_info)
 
 
 #Datasets to pull from
-database = "mysql://root:neogene227@localhost/iodp_compiled"
-directory = r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs"
-metadata = "metadata_mg_flux"
-site_info = "site_info"
-hole_info = "summary_all"
 lat_name = 'lat'
 lon_name = 'lon'
 
 # Load site data
-site_metadata = comp(database, metadata, site_info, hole_info)
+site_metadata = comp(engine, metadata_table, site_info, hole_info)
 ml_train = site_metadata
-# training_inputs = pd.read_csv(r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\training_inputs.csv",sep=',')
 # idw = pd.read_csv('idw_interp.csv', sep=',')
-# ml_train = pd.concat((site_metadata, training_inputs), axis=1)
 # ml_train = pd.concat((ml_train, idw), axis=1)
 oc_burial = ml_train['sed_rate_combined'].astype(float)*ml_train['toc_wood'].astype(float)
 

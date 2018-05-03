@@ -10,11 +10,6 @@ Create maps
 
 """
 
-import numpy as np
-import scipy as sp
-import rasterio
-from rasterio import Affine
-from rasterio.warp import reproject, Resampling
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy

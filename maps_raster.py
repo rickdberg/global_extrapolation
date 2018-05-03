@@ -17,9 +17,11 @@ import cartopy.crs as ccrs
 import cartopy
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
+from user_parameters import (std_grids_path, ml_inputs_path)
+
+
 # Get template
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -33,8 +35,7 @@ lon[lon > 180] -= 360
 # Load gridded data
 
 # Load WOA bw temp grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\woa_temp_std.txt"
+fluxes = np.loadtxt(std_grids_path + "woa_temp_std.txt"
 , delimiter='\t')
 
 woat = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -48,8 +49,7 @@ title = '$Bottom\ water\ temperature\ (^\circ C)$'
 
 
 # Load WOA bw salinity grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\woa_salinity_std.txt"
+fluxes = np.loadtxt(std_grids_path + "woa_salinity_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -63,8 +63,7 @@ title = '$Bottom\ water\ salinity\ (psu)$'
 
 
 # Load etopo1_depth grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\etopo1_depth_std.txt"
+fluxes = np.loadtxt(std_grids_path + "etopo1_depth_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -78,8 +77,7 @@ title = '$Water\ depth\ (mbsl)$'
 
 
 # Load 'surface_productivity', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\surface_productivity_std.txt"
+fluxes = np.loadtxt(std_grids_path + "surface_productivity_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -93,8 +91,7 @@ title = '$Surface\ productivity$'
 
 
 # Load 'toc_wood' grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\toc_wood_std.txt"
+fluxes = np.loadtxt(std_grids_path + "toc_wood_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -108,8 +105,7 @@ title = '$Total\ organic\ carbon$'
 
 
 # Load 'woa_o2' grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\woa_o2_std.txt"
+fluxes = np.loadtxt(std_grids_path + "woa_o2_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -123,8 +119,7 @@ title = '$Bottom\ water\ oxygen$'
 
 
 # Load 'surface_porosity' grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\surface_porosity_std.txt"
+fluxes = np.loadtxt(std_grids_path + "surface_porosity_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -138,8 +133,7 @@ title = '$Surface\ porosity$'
 
 
 # Load 'coast_distance' grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\coast_distance_std.txt"
+fluxes = np.loadtxt(std_grids_path + "coast_distance_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -153,8 +147,7 @@ title = '$Distance\ to\ coast$'
 
 
 # Load 'ridge_distance' grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\ridge_distance_std.txt"
+fluxes = np.loadtxt(std_grids_path + "ridge_distance_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -168,8 +161,7 @@ title = '$Distance\ to\ ridge$'
 
 
 # Load 'seamount', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\seamount_std.txt"
+fluxes = np.loadtxt(std_grids_path + "seamount_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -183,8 +175,7 @@ title = '$Nearby\ seamounts$'
 
 
 # Load 'opal', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\opal_std.txt"
+fluxes = np.loadtxt(std_grids_path + "opal_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -198,8 +189,7 @@ title = '$Opal\ concentration$'
 
 
 # Load 'caco3', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\caco3_std.txt"
+fluxes = np.loadtxt(std_grids_path + "caco3_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -213,8 +203,7 @@ title = '$CaCO3\ concentration$'
 
 
 # Load 'crustal_age', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\crustal_age_std.txt"
+fluxes = np.loadtxt(std_grids_path + "crustal_age_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -228,8 +217,7 @@ title = '$Crustal\ age$'
 
 
 # Load 'sed_thickness', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\sed_thickness_std.txt"
+fluxes = np.loadtxt(std_grids_path + "sed_thickness_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -242,8 +230,7 @@ woas.close()
 title = '$Sediment\ thickness$'
 
 # Load 'acc_rate_archer', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\acc_rate_archer_std.txt"
+fluxes = np.loadtxt(std_grids_path + "acc_rate_archer_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -256,8 +243,7 @@ woas.close()
 title = '$CaCO3\ accumulation\ rate$'
 
 # Load 'caco3_archer', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\caco3_archer_std.txt"
+fluxes = np.loadtxt(std_grids_path + "caco3_archer_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',
@@ -270,8 +256,7 @@ woas.close()
 title = '$CaCO3$'
 
 # Load 'sed_rate_combined', grid
-fluxes = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\standardized files\sed_rate_combined_std.txt"
+fluxes = np.loadtxt(std_grids_path + "sed_rate_combined_std.txt"
 , delimiter='\t')
 
 woas = rasterio.open('rf.nc', 'w', driver='GMT',

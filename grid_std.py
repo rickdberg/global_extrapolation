@@ -13,6 +13,8 @@ from rasterio import Affine
 from rasterio.warp import reproject, Resampling
 import matplotlib.pyplot as plt
 
+from user_parameters import (ml_inputs_path, std_grids_path)
+
 
 # Function for opening grid files and retrieving datasets into arrays
 def rast(f_path):
@@ -26,8 +28,7 @@ def rast(f_path):
 newarr_shape = (2160,4320)
 
 # Open all single layer gridded datasets
-sed_thickness_laske = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Laske - sed thickness\sedmap.grd"
+sed_thickness_laske = rast(ml_inputs_path + "Laske - sed thickness\sedmap.grd"
 )
 def sed_arrange(sed_thickness_laske):
     st_left = sed_thickness_laske[:,1:(sed_thickness_laske.shape[1]+1)/2+1]
@@ -37,8 +38,7 @@ sed_thickness_laske = sed_arrange(sed_thickness_laske)*1000
 
 
 
-toc_jahnke = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Jahnke - TOC burial\OrganicCDistribution.csv"
+toc_jahnke = np.loadtxt(ml_inputs_path + "Jahnke - TOC burial\OrganicCDistribution.csv"
 , delimiter=',')
 def jahnke_arrange(toc_jahnke):
     st_left = toc_jahnke[:,:30]
@@ -49,8 +49,7 @@ def jahnke_arrange(toc_jahnke):
     return np.concatenate((top_filler, cut, bottom_filler))
 toc_jahnke = jahnke_arrange(toc_jahnke)
 
-caco3_archer = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Archer - caco3\pct_CaCO3.coretop.cdf"
+caco3_archer = rast(ml_inputs_path + "Archer - caco3\pct_CaCO3.coretop.cdf"
 )
 def caco3_arrange(caco3_archer):
     caco3_archer[caco3_archer > 100] = np.nan
@@ -60,8 +59,7 @@ def caco3_arrange(caco3_archer):
     return np.concatenate((st_right, st_left), axis=1)
 caco3_archer = caco3_arrange(caco3_archer)
 
-acc_rate_archer = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Archer - accumulation rate\accum.coretop.cdf"
+acc_rate_archer = rast(ml_inputs_path + "Archer - accumulation rate\accum.coretop.cdf"
 )
 def acc_rate_arrange(acc_rate_archer):
     st_left = acc_rate_archer[:,:180]
@@ -69,16 +67,13 @@ def acc_rate_arrange(acc_rate_archer):
     return np.concatenate((st_right, st_left), axis=1)
 acc_rate_archer = acc_rate_arrange(acc_rate_archer)
 
-etopo1_depth = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Amante - etopo1\ETOPO1_Bed_g_gmt4.grd"
+etopo1_depth = rast(ml_inputs_path + "Amante - etopo1\ETOPO1_Bed_g_gmt4.grd"
 )
 
-surface_porosity = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+surface_porosity = rast(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 
-sed_thickness_whittaker = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Whittaker - sed thickness\sedthick_world_v2.grd"
+sed_thickness_whittaker = rast(ml_inputs_path + "Whittaker - sed thickness\sedthick_world_v2.grd"
 )
 def sed_arrange(sed_thickness_whittaker):
     top_filler = np.empty((112,sed_thickness_whittaker.shape[1])) * np.nan
@@ -89,12 +84,10 @@ def sed_arrange(sed_thickness_whittaker):
     return np.concatenate((st_right, st_left), axis=1)
 sed_thickness_whittaker = sed_arrange(sed_thickness_whittaker)
 
-crustal_age = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Muller - crustal age\age.3.2.nc"
+crustal_age = rast(ml_inputs_path + "Muller - crustal age\age.3.2.nc"
 )
 
-coast_distance = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0007-supinfo.grd"
+coast_distance = rast(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0007-supinfo.grd"
 )
 def coast_fill(coast_distance):
     top_filler = np.empty((1,coast_distance.shape[1])) * np.nan
@@ -103,8 +96,7 @@ def coast_fill(coast_distance):
 coast_distance = coast_fill(coast_distance)
 
 
-ridge_distance = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0006-supinfo.grd"
+ridge_distance = rast(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0006-supinfo.grd"
 )
 def ridge_fill(ridge_distance):
     top_filler = np.empty((12,ridge_distance.shape[1])) * np.nan
@@ -112,16 +104,13 @@ def ridge_fill(ridge_distance):
     return np.concatenate((top_filler, ridge_distance, bottom_filler))
 ridge_distance = ridge_fill(ridge_distance)
 
-seamount = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0005-supinfo.grd"
+seamount = rast(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0005-supinfo.grd"
 )
 
-surface_productivity = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0008-supinfo.grd"
+surface_productivity = rast(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0008-supinfo.grd"
 )
 
-toc = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Seiter - TOC\TOC_Seiteretal2004.asc"
+toc = rast(ml_inputs_path + "Seiter - TOC\TOC_Seiteretal2004.asc"
 )
 def toc_fill(toc):
     top_filler = np.empty((4,toc.shape[1])) * np.nan
@@ -129,37 +118,36 @@ def toc_fill(toc):
     return np.concatenate((top_filler, toc))
 toc = toc_fill(toc)
 
-caco3 = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Seiter - TOC\calcite_seiteretal.2004.asc"
+caco3 = rast(ml_inputs_path + "Seiter - TOC\calcite_seiteretal.2004.asc"
 )
 
-opal = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Seiter - TOC\opal_seiteretal.2004.asc"
+opal = rast(ml_inputs_path + "Seiter - TOC\opal_seiteretal.2004.asc"
 )
 
-lithology = rast(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Dutkiewitcz - lithology\seabed_lithology_v1.nc"
+lithology = rast(ml_inputs_path + "Dutkiewitcz - lithology\seabed_lithology_v1.nc"
 )
 categories = np.arange(13)+1
 
-woa_temp = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\WOA - water temp, salinity\bottom_temp_original.csv"
+woa_temp = np.loadtxt(ml_inputs_path + "WOA - water temp, salinity\bottom_temp_original.csv"
 , delimiter=',')
 woa_temp = np.flipud(woa_temp)
 
-woa_salinity = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\WOA - water temp, salinity\bottom_salintity_original.csv"
+woa_salinity = np.loadtxt(ml_inputs_path + "WOA - water temp, salinity\bottom_salintity_original.csv"
 , delimiter=',')
 woa_salinity = np.flipud(woa_salinity)
 
-woa_o2 = np.loadtxt(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\WOA - water temp, salinity\bottom_o2_original.csv"
+woa_o2 = np.loadtxt(ml_inputs_path + "WOA - water temp, salinity\bottom_o2_original.csv"
 , delimiter=',')
 woa_o2 = np.flipud(woa_o2)
 
+toc_wood = np.fromfile(ml_inputs_path + "Wood - TOC\SF_TOC_PDW_7432_points.5m.ggg"
+, dtype='f')
+toc_wood = toc_wood.reshape(newarr_shape)
+toc_wood = np.flipud(toc_wood)
+
+
 # Get coordinates of porosity grid, which all others will be matched to
-f = rasterio.open(
-r"C:\Users\rickdberg\Documents\UW Projects\Magnesium uptake\Data\ML Inputs\Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
+f = rasterio.open(ml_inputs_path + "Martin - porosity productivity distances\grl53425-sup-0002-supinfo.grd"
 )
 newaff = f.transform
 top_left = f.transform * (0,0)
@@ -189,6 +177,8 @@ np.savetxt('lithology.txt.gz', lithology, delimiter='\t')
 np.savetxt('caco3_archer.txt.gz', caco3_archer, delimiter='\t')
 np.savetxt('acc_rate_archer.txt.gz', acc_rate_archer, delimiter='\t')
 np.savetxt('sed_thickness_laske.txt.gz', sed_thickness_laske, delimiter='\t')
+np.savetxt('toc_jahnke.txt.gz', toc_jahnke, delimiter='\t')
+np.savetxt('toc_wood.txt.gz', toc_wood, delimiter='\t')
 
 """
 
@@ -197,8 +187,9 @@ np.savetxt('sed_thickness_laske.txt.gz', sed_thickness_laske, delimiter='\t')
 reg_datasets = [etopo1_depth, surface_porosity, sed_thickness_whittaker, crustal_age,
                 coast_distance, ridge_distance, seamount, surface_productivity,
                 toc, opal, caco3, woa_temp, woa_salinity, woa_o2,
-                caco3_archer, acc_rate_archer,sed_thickness_laske]
-reg_datasets = [acc_rate_archer]
+                caco3_archer, acc_rate_archer, toc_jahnke, sed_thickness_laske,
+                toc_wood]
+# reg_datasets = [toc_wood]
 # Function for resampling datasets to be consistent with 5" pixel-registered porosity dataset
 def resamp(dataset, resampler, newarr_shape):
     arr = dataset
@@ -230,14 +221,14 @@ for n in regs:
     newarr = resamp(reg_datasets[n], Resampling.bilinear, newarr_shape)
     gridded_data[:,:,n] = newarr
 
-
 # Free up memory
 for dataset in reg_datasets:
     del dataset
 
 # Resample categorical datasets with nearest values
+lithology = resamp(lithology, Resampling.nearest, newarr_shape).astype(int)
 for num in categories:
-    lith_resamp = resamp(lithology, Resampling.nearest, newarr_shape).astype(int)
+    lith_resamp = lithology
     lith_resamp[lith_resamp != num] = 0
     lith_resamp[lith_resamp == num] = 1
     gridded_data[:,:,len(regs)+num-1] = lith_resamp
@@ -245,17 +236,18 @@ for num in categories:
 ###############################################################################
 """
 # Save standardized datasets
-filenames = ['etopo1_depth', 'surface_porosity', 'sed_thickness_whittaker', 'crustal_age',
-                'coast_distance', 'ridge_distance', 'seamount', 'surface_productivity',
-                'toc', 'opal', 'caco3', 'woa_temp', 'woa_salinity', 'woa_o2',
-                'caco3_archer', 'acc_rate_archer','sed_thickness_laske',
-                'lith1','lith2','lith3',
-                'lith4','lith5','lith6','lith7','lith8',
-                'lith9','lith10','lith11','lith12','lith13']
+filenames = ['etopo1_depth', 'surface_porosity', 'sed_thickness_whittaker',
+             'crustal_age','coast_distance', 'ridge_distance', 'seamount',
+             'surface_productivity','toc', 'opal', 'caco3', 'woa_temp',
+             'woa_salinity', 'woa_o2','caco3_archer', 'acc_rate_archer',
+             'toc_jahnke','sed_thickness_laske', 'toc_wood', 'lithology',
+             'lith1','lith2','lith3',
+             'lith4','lith5','lith6','lith7','lith8',
+             'lith9','lith10','lith11','lith12','lith13']
 
-filenames = ['acc_rate_archer']
+filenames = ['toc_wood']
 for n in np.arange(len(filenames)):
-    np.savetxt(filenames[n]+'_std.txt', gridded_data[:,:,n], delimiter='\t')
+    np.savetxt(std_grids_path + filenames[n] + '_std.txt', gridded_data[:,:,n], delimiter='\t')
 """
 
 
@@ -263,8 +255,7 @@ for n in np.arange(len(filenames)):
 """
 # View datasets
 plt.close('all')
-plt.imshow(acc_rate_archer, cmap='plasma')
-plt.show = lambda : None  # prevents showing during doctests
+plt.imshow(toc_wood, cmap='plasma')
 plt.show()
 """
 
